@@ -1,4 +1,0 @@
-[submodule "cloud-common"]
-	path = cloud-common
-	url = https://github.com/OpenAgricultureFoundation/cloud-common
-	branch = master
