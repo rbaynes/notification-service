@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 
-""" This service subscribes for pub-sub notifications sent by the the 
-    MQTT service (on belhaf of device messages).
+""" This service subscribes for pub-sub notifications 
+    (sent by the the MQTT service on belhaf of device messages).
     - Handles recipe start/stop/end messages.
     - Maintains a schedule of events that can create notifications.
     - Maintains a list of recipe runs.
+
+    Design: https://github.com/OpenAgricultureFoundation/notification-service/blob/master/docs/API.pdf
 """
 
 import os, sys, json, argparse, logging, signal
 
-from cloud_common import cc
+from cloud_common.cc import version as cc_version
 from cloud_common.cc.google import pubsub # takes a few secs...
 from cloud_common.cc.google import env_vars 
+from cloud_common.cc.notifications import notifications 
 
-#debugrob: move to main and change to logging
-print(f'{__file__} using cloud_common version {cc.version.__version__}')
+
+#------------------------------------------------------------------------------
+# Sadly, we have to use a global class instance here, since the pubsub message
+# callback signature won't let me call a class method.
+notifications_instance = notifications.Notifications()
 
 
 #------------------------------------------------------------------------------
@@ -26,34 +32,30 @@ signal.signal( signal.SIGINT, signal_handler )
 
 
 #------------------------------------------------------------------------------
-# This callback is called for each PubSub/IoT message we receive.
+# This callback is called for each message we receive on the notifications 
+# pubsub topic.
 # We acknowledge the message, then validate and act on it if valid.
 def callback(msg):
     try:
         msg.ack() # acknowledge to the server that we got the message
 
+        if len(msg.data) == 0:
+            logging.error(f'No data in message.')
+            return 
+
         display_data = msg.data
         if 250 < len(display_data):
             display_data = "..."
-        logging.debug('data={}\n  deviceId={}\n  subFolder={}\n  '
-            'deviceNumId={}\n'.
-            format( 
-                display_data, 
-                msg.attributes['deviceId'],
-                msg.attributes['subFolder'],
-                msg.attributes['deviceNumId'] ))
+        logging.debug(f'subs callback received:\n\n{display_data}\n')
 
-        """debugrob, change this
-        # try to decode the byte data as a string / JSON
-        pydict = json.loads( msg.data.decode('utf-8'))
-        # os.getenv('GCLOUD_PROJECT'),
-        # os.getenv('BQ_DATASET'),
-        # os.getenv('BQ_TABLE'),
-        # os.getenv('CS_BUCKET'))
-        """
+        # try to decode the byte data as a string / JSON, exception if not json
+        pydict = json.loads(msg.data.decode('utf-8'))
+
+        # finally let our notifications class parse this
+        notifications_instance.parse(pydict)
 
     except Exception as e:
-        logging.critical(f'Exception in callback(): {e}')
+        logging.error(f'Exception in callback(): {e}')
 
 
 #------------------------------------------------------------------------------
@@ -82,6 +84,8 @@ def main():
        None == env_vars.notifications_topic_subs:
         logging.critical('Missing required environment variables.')
         exit( 1 )
+
+    logging.info(f'{os.path.basename(__file__)} using cloud_common version {cc_version.__version__}')
 
     # Infinetly re-subscribe to this topic and receive callbacks for each
     # message.
