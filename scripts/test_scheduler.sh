@@ -31,57 +31,66 @@ export PYTHONPATH=$DIR
 # Test the scheduler class
 python3.6 -c "import cloud_common.cc.notifications.scheduler as scheduler
 import logging
+import datetime as dt
 logging.basicConfig(level=logging.DEBUG)
 sched = scheduler.Scheduler()
 
 print(f'{sched.get_commands()}')
+print(f'\n\nTime now UTC={dt.datetime.utcnow()}')
 
-ret=sched.to_str('test_device_ID')
+devID='test_device_ID'
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\nadd take measurments:')
-sched.add('test_device_ID', sched.take_measurements_command)
-ret=sched.to_str('test_device_ID')
+sched.add(devID, sched.take_measurements_command)
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\nadd harvest:')
-sched.add('test_device_ID', sched.harvest_plant_command, 0)
-ret=sched.to_str('test_device_ID')
+sched.add(devID, sched.harvest_plant_command, 0)
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\nget take measurement command:')
-ret=sched.get_command_dict('test_device_ID', sched.take_measurements_command)
+ret=sched.get_command_dict(devID, sched.take_measurements_command)
 print(f'get_command_dict={ret}')
 
+print('\nmodify and replace take measurement command:')
+ret[sched.message_key]='Hi Rob, you overwrote the message'
+sched.replace_command(devID, ret)
+ret=sched.to_str(devID)
+print(f'to_str={ret}')
+
 print('\nremove command take measurement:')
-sched.remove_command('test_device_ID', sched.take_measurements_command)
-ret=sched.to_str('test_device_ID')
+sched.remove_command(devID, sched.take_measurements_command)
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\nremove command that doesnt exist:')
-sched.remove_command('test_device_ID', 'missing_cmd')
-ret=sched.to_str('test_device_ID')
+sched.remove_command(devID, 'missing_cmd')
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\nremove all commands:')
-sched.remove_all_commands('test_device_ID')
-ret=sched.to_str('test_device_ID')
+sched.remove_all_commands(devID)
+ret=sched.to_str(devID)
 print(f'to_str={ret}')
 
 print('\ncheck:')
-sched.check('test_device_ID')
+sched.check(devID)
 
 print('\nbump hours to 1:')
-sched.testing_hours(1)
-sched.check('test_device_ID')
+sched.set_testing_hours(1)
+sched.check(devID)
 
 print('\nbump hours to 24:')
-sched.testing_hours(24)
-sched.check('test_device_ID')
+sched.set_testing_hours(24)
+sched.check(devID)
 
 print('\nbump hours to 48:')
-sched.testing_hours(48)
-sched.check('test_device_ID')
+sched.set_testing_hours(48)
+sched.check(devID)
 
 
 

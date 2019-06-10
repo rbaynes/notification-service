@@ -9,18 +9,18 @@
     Design: https://github.com/OpenAgricultureFoundation/notification-service/blob/master/docs/API.pdf
 """
 
-import os, sys, json, argparse, logging, signal
+import os, sys, json, argparse, logging, signal, traceback
 
 from cloud_common.cc import version as cc_version
 from cloud_common.cc.google import pubsub # takes a few secs...
 from cloud_common.cc.google import env_vars 
-from cloud_common.cc.notifications import notifications 
+from cloud_common.cc.notifications.notification_messaging import NotificationMessaging
 
 
 #------------------------------------------------------------------------------
 # Sadly, we have to use a global class instance here, since the pubsub message
 # callback signature won't let me call a class method.
-notifications_instance = notifications.Notifications()
+notification_messaging = NotificationMessaging()
 
 
 #------------------------------------------------------------------------------
@@ -52,10 +52,12 @@ def callback(msg):
         pydict = json.loads(msg.data.decode('utf-8'))
 
         # finally let our notifications class parse this
-        notifications_instance.parse(pydict)
+        notification_messaging.parse(pydict)
 
     except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
         logging.error(f'Exception in callback(): {e}')
+        traceback.print_tb( exc_traceback, file=sys.stdout )
 
 
 #------------------------------------------------------------------------------

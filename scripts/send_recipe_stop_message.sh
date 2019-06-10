@@ -34,7 +34,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 nm = NotificationMessaging()
-nm.publish('test_device_ID', nm.recipe_start, 'robs hot pepper')
+nm.publish('test_device_ID', nm.recipe_stop)
 
 "
 
