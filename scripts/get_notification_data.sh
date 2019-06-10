@@ -28,13 +28,17 @@ source pyenv/bin/activate
 # Add the top leve dir to the py path so we can pick up the submodule.
 export PYTHONPATH=$DIR
 
-# Publish a recipe start message for testing.
-python3.6 -c "from cloud_common.cc.notifications.notification_messaging import NotificationMessaging
+# Test the nduler class
+python3.6 -c "from cloud_common.cc.notifications.notification_data import NotificationData
 import logging
+import datetime as dt
 logging.basicConfig(level=logging.DEBUG)
 
-nm = NotificationMessaging()
-nm.publish('test_device_ID', nm.recipe_stop)
+nd = NotificationData()
+
+devID='test_device_ID'
+ret=nd.to_str(devID)
+print(f'All notifications for {devID}:\n{ret}')
 
 "
 
