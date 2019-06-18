@@ -38,7 +38,7 @@ sched = scheduler.Scheduler()
 print(f'\n\nTime now UTC={dt.datetime.utcnow()}')
 
 #devID='test_device_ID'
-devID='EDU-EFB0ECDE-c4-b3-01-8d-9b-8c'
+devID='EDU-39BD6A22-c4-b3-01-8d-9b-8c'
 
 print('\ncheck:')
 sched.check(devID)
