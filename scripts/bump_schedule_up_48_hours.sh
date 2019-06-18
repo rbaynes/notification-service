@@ -35,10 +35,26 @@ import datetime as dt
 logging.basicConfig(level=logging.DEBUG)
 sched = scheduler.Scheduler()
 
+print(f'\n\nTime now UTC={dt.datetime.utcnow()}')
+
 #devID='test_device_ID'
 devID='EDU-EFB0ECDE-c4-b3-01-8d-9b-8c'
-ret=sched.to_str(devID)
-print(f'Schedule for {devID}:\n{ret}')
+
+print('\ncheck:')
+sched.check(devID)
+
+print('\nbump hours to 1:')
+sched.set_testing_hours(1)
+sched.check(devID)
+
+print('\nbump hours to 24:')
+sched.set_testing_hours(24)
+sched.check(devID)
+
+print('\nbump hours to 48:')
+sched.set_testing_hours(48)
+sched.check(devID)
+
 
 
 "
