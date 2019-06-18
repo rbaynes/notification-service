@@ -36,7 +36,7 @@ logging.basicConfig(level=logging.DEBUG)
 sched = scheduler.Scheduler()
 
 #devID='test_device_ID'
-devID='EDU-EFB0ECDE-c4-b3-01-8d-9b-8c'
+devID='EDU-39BD6A22-c4-b3-01-8d-9b-8c'
 ret=sched.to_str(devID)
 print(f'Schedule for {devID}:\n{ret}')
 

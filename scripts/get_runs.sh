@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.DEBUG)
 runs = r.Runs()
 
 #devID='test_device_ID'
-devID='EDU-EFB0ECDE-c4-b3-01-8d-9b-8c'
+devID='EDU-39BD6A22-c4-b3-01-8d-9b-8c'
 ret=runs.to_str(devID)
 print(f'All runs for {devID}:\n{ret}')
 
